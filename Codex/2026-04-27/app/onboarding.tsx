@@ -1,4 +1,36 @@
-   borderWidth: 1,
+          </View>
+        )}
+
+        {step === "result" && (
+          <View style={[styles.card, shadow]}>
+            <View style={styles.iconBubble}>
+              <BadgeCheck color={colors.green} size={34} strokeWidth={2.7} />
+            </View>
+            <Text style={styles.kicker}>+{INITIAL_XP} XP debloques</Text>
+            <Text style={styles.title}>Ton niveau est : {levelLabel(detectedLevel)}</Text>
+            <Text style={styles.subtitle}>{levelMessage(detectedLevel)}</Text>
+            <Pressable onPress={finish} style={({ pressed }) => [styles.primaryButton, pressed && styles.pressed]}>
+              <Text style={styles.primaryText}>Commencer ma premiere mission</Text>
+            </Pressable>
+          </View>
+        )}
+      </SafeAreaView>
+    </LinearGradient>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1 },
+  safe: { flex: 1, padding: 22 },
+  header: { flexDirection: "row", alignItems: "center", gap: 10, marginBottom: 18 },
+  brand: { color: colors.ink, fontSize: 24, fontWeight: "900", letterSpacing: 0 },
+  progressWrap: { marginBottom: 18 },
+  card: {
+    flex: 1,
+    backgroundColor: colors.white,
+    borderRadius: 32,
+    padding: 24,
+    borderWidth: 1,
     borderColor: colors.line,
     justifyContent: "center",
     gap: 18
