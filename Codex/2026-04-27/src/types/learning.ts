@@ -1,13 +1,3 @@
-export type Level = "debutant" | "intermediaire" | "avance";
-
-export type QuizQuestion = {
-  id: string;
-  prompt: string;
-  options: string[];
-  answerIndex: number;
-  explanation: string;
-};
-
 export type Lesson = {
   id: string;
   title: string;
@@ -29,6 +19,7 @@ export type CourseModule = {
 export type ProgressState = {
   hasOnboarded: boolean;
   level: Level;
+  objective?: UserObjective;
   xp: number;
   streak: number;
   lastActivityDate?: string;
