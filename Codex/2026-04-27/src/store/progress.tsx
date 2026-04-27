@@ -1,48 +1,3 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from "react";
-import { isToday, isYesterday, todayKey } from "@/lib/date";
-import { Level, ProgressState } from "@/types/learning";
-
-const STORAGE_KEY = "financelo.progress.v1";
-
-const initialProgress: ProgressState = {
-  hasOnboarded: false,
-  level: "debutant",
-  xp: 0,
-  streak: 0,
-  completedLessons: [],
-  badges: []
-};
-
-type ProgressContextValue = {
-  progress: ProgressState;
-  isReady: boolean;
-  setLevel: (level: Level) => void;
-  completeLesson: (lessonId: string, xp: number) => void;
-  resetProgress: () => void;
-};
-
-const ProgressContext = createContext<ProgressContextValue | null>(null);
-
-function awardBadges(next: ProgressState) {
-  const badges = new Set(next.badges);
-  if (next.xp >= 50) badges.add("Premier capital");
-  if (next.streak >= 3) badges.add("Serie chaude");
-  if (next.completedLessons.length >= 3) badges.add("Apprenti investisseur");
-  if (next.xp >= 100) badges.add("Mentalite long terme");
-  return [...badges];
-}
-
-export function ProgressProvider({ children }: PropsWithChildren) {
-  const [progress, setProgress] = useState<ProgressState>(initialProgress);
-  const [isReady, setReady] = useState(false);
-
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY)
-      .then((saved) => {
-        if (saved) setProgress({ ...initialProgress, ...JSON.parse(saved) });
-      })
-      .finally(() => setReady(true));
   }, []);
 
   useEffect(() => {
@@ -56,6 +11,16 @@ export function ProgressProvider({ children }: PropsWithChildren) {
       setLevel(level) {
         setProgress((current) => ({ ...current, hasOnboarded: true, level }));
       },
+      finishOnboarding(objective, level, initialXp) {
+        setProgress((current) => ({
+          ...current,
+          hasOnboarded: true,
+          objective,
+          level,
+          xp: current.xp + initialXp,
+          badges: awardBadges({ ...current, objective, level, xp: current.xp + initialXp })
+        }));
+      },
       completeLesson(lessonId, xp) {
         setProgress((current) => {
           const alreadyDone = current.completedLessons.includes(lessonId);
@@ -68,7 +33,7 @@ export function ProgressProvider({ children }: PropsWithChildren) {
 
           const next: ProgressState = {
             ...current,
-            xp: current.xp + (alreadyDone ? 5 : xp),
+            xp: current.xp + xp,
             streak: nextStreak,
             lastActivityDate: activityDate,
             completedLessons: alreadyDone ? current.completedLessons : [...current.completedLessons, lessonId]
